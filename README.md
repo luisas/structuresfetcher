@@ -1,4 +1,4 @@
-# S T R U C T E R E S          F E T C H E R   ~ v1.0.0
+# S T R U C T E R E S  _  F E T C H E R   ~ v1.0.0
 
 ```
 nextflow run main.nf -profile homfam_uniprot
