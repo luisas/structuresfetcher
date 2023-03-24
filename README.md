@@ -1,5 +1,7 @@
 # S T R U C T U R E S  _  F E T C H E R   ~ v1.0.0
 
+Given a fasta file and a target search database, fetches the best protein structure hits according to the filtering criteria. 
+
 ```
 nextflow run main.nf -profile homfam_uniprot
 ```
