@@ -1,15 +1,15 @@
-# structuresfetcher
+# S T R U C T E R E S    F E T C H E R   ~ v1.0.0
 
+```
 nextflow run main.nf -profile homfam_uniprot
+```
 
-
-default filering params
-  min_id_mmseqs = 0.7
-  min_cov_mmseqs = 0.7
-  covmode_mmseqs = 2
-
-  min_id_filter = 0.9
-  min_cov_filter= 1.0
+default filtering parameters: 
+  - min_id_mmseqs = 0.7
+  - min_cov_mmseqs = 0.7
+  - covmode_mmseqs = 2
+  - min_id_filter = 0.9
+  - min_cov_filter= 1.0
   
 mmseqs defines the search 
 filter the one we are actually downloading later 
