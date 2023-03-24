@@ -20,13 +20,15 @@ target_db = Channel.fromPath( "${params.dbdir}/${params.target_db}",checkIfExist
 
 
 log.info """\
-         STRUCTURE FETCHER  ~  version 1.0.0    
+         S T R U C T U R E S  F E T C H E R  ~  version 1.0.0    
          ======================================="""
 log.info "seqs                    : ${params.seqs}"
 log.info "target_db               : ${params.target_db}"
 log.info "min_id_mmseqs           : ${params.min_id_mmseqs}"
 log.info "min_cov_mmseqs          : ${params.min_cov_mmseqs}"
 log.info "covmode_mmseqs          : ${params.covmode_mmseqs}"
+log.info "min_id_filter           : ${params.min_id_filter}"
+log.info "min_cov_filter          : ${params.min_cov_filter}"
 
 
 
@@ -36,7 +38,7 @@ workflow FETCH_STRUCTURES {
       GET_PDB_STRUCTURES (seqs, target_db)
     }
     else if (params.target_db == "UniProtKB") {
-      GET_UNIPROT_STRUCTURES (seqs, target_db)
+      GET_UNIPROT_STRUCTURES (seqs, target_db, params.min_id_filter, params.min_cov_filter)
     }
 }
 

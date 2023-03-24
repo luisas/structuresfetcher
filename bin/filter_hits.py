@@ -1,16 +1,21 @@
+#!/usr/bin/env python3
+
 import pandas as pd
 import sys
 
 hits=sys.argv[1]
 output=sys.argv[2]
-template="template.txt"
-output_ids="ids_to_download.txt"
-output_chains="chains_summary.txt"
+template=sys.argv[3]
+output_ids=sys.argv[4]
+output_chains=sys.argv[5]
+min_id = float(sys.argv[6])
+min_cov = float(sys.argv[7])
 
 
 def get_best_hits(hits):
 
     df = pd.read_csv(hits, sep='\t', header = None)
+
     # 1 - Get all the sequences with maximum identity
     df_grouped = df.groupby([0]).agg({2:'max'})
     df_grouped = df_grouped.reset_index()
@@ -26,10 +31,10 @@ def get_best_hits(hits):
     df_id_match_2 = df[df[0] == df["target_id_chainmerged"]]
     df_id_match = pd.concat([df_id_match_1,df_id_match_2])
     
-    # If there are multiple matches per sequence( multiple chains for example), pick the firt one
+    # If there are multiple matches per sequence( multiple chains for example), pick the first one
     df_id_match = df_id_match.groupby(0).first().reset_index()
 
-    # Only retain the dataframe
+    # Polish final dataframe
     df_noid_match = df[~df[0].isin(df_id_match[0])].reset_index(drop = True)
     if(not df_noid_match.empty):
         df_noid_match['max_fam'] = df_noid_match.groupby([0])[2].transform('max')
@@ -39,6 +44,10 @@ def get_best_hits(hits):
     else:
         final_df = df_id_match
 
+    # Add filter of coverage and identity
+    final_df = final_df[final_df[2] >= min_id]
+    final_df = final_df[final_df[12] >= min_cov]
+
     return(final_df)
 
 def main():
@@ -46,7 +55,7 @@ def main():
     df.to_csv(output, sep="\t", header=None, index=False)
 
     # 2. Create file with IDs to download
-    df["target_id_nochain"].to_csv(output_ids, sep="\t", header=None, index=False)
+    df["target_id_nochain"].drop_duplicates().to_csv(output_ids, sep="\t", header=None, index=False)
 
     # 3. Create file also with chain informations
     df["chain"] = "NA"
