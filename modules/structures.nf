@@ -5,25 +5,6 @@ include { set_templates_path } from './functions.nf'
 path_templates = set_templates_path()
 
 
-process MMSEQS_PREP_DB {
-    container 'soedinglab/mmseqs2'
-    storeDir "${params.dbdir}/dbs/${params.target_db}"
-    label 'process_small'
-    tag "$db_id"
-
-    input:
-    tuple val(db_id), file(db)
-
-    output:
-    path db
-
-    script:
-    """
-    mmseqs createindex $db/$db_id tmp
-    """
-}
-
-
 process MMSEQS_SEARCH {
     container 'luisas/mmseqs2test'
     storeDir "${params.outdir}/mmseqs/${db_id}/$id/"
@@ -36,6 +17,7 @@ process MMSEQS_SEARCH {
 
     output:
     tuple val(id), val(db_id), path("hits.m8"), emit: hits
+    path ".command.trace", emit: metricFile
 
     script:
     """
@@ -58,10 +40,12 @@ process FILTER_HITS {
 
     output:
     tuple val(id), val(db_id), file("${id}_filtered_hits.m8"), file("${id}_template.txt"), file("${id}_ids_to_download.txt"), val(min_id_filter), val(min_cov_filter), emit: filtered_hits
+    path ".command.trace", emit: metricFile
+
 
     script:
     """
-    filter_hits.py ${hits} "${id}_filtered_hits.m8" "${id}_template.txt" "${id}_ids_to_download.txt" ${min_id_filter} ${min_cov_filter} 
+    filter_hits.py ${hits} "${id}_filtered_hits.m8" "${id}_template.txt" "${id}_ids_to_download.txt" "${id}_chains.txt" ${min_id_filter} ${min_cov_filter} 
     """
 }
 
@@ -76,7 +60,8 @@ process FETCH_STRUCTURES_AF2DB {
     tuple val(id), val(db_id), file(hits), file(template), file(ids_to_download), val(min_id_filter), val(min_cov_filter)
 
     output:
-    tuple val(id), val(db_id), file(hits), file(template), file("*_ref.pdb"), emit: fetched_structures
+    tuple val(id), val(db_id), file("*.pdb"), emit: fetched_structures
+    path ".command.trace", emit: metricFile
 
     script:
     """
@@ -87,10 +72,11 @@ process FETCH_STRUCTURES_AF2DB {
     for id in \$(cat $ids_to_download); do url="https://alphafold.ebi.ac.uk/files/AF-\$id-F1-model_v4.pdb"; if `validate_url \$url == "true"`; then wget \$url; else echo "does not exist"; fi ; done
 
     # Rechange the protein names according to what appears in the template file
-    getlinks_uniprot.py" ${template} "make_links_tmp.sh" "pdb"
+    getlinks_uniprot.py ${template} "make_links_tmp.sh" "pdb"
     [ -f ./make_links_tmp.sh ] && tr ', ' ' ' < make_links_tmp.sh > make_links.sh
     [ -f ./make_links.sh ] && bash ./make_links.sh
     [ -f ./make_links.sh ] && cat ./make_links.sh
+    rm ./AF-*
     """
 }
 
