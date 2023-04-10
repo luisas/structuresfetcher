@@ -53,7 +53,7 @@ process FILTER_HITS {
 process FETCH_STRUCTURES_AF2DB {
     container 'luisas/python:bio3'
     storeDir "${params.outdir}/structures/fetched/${db_id}/$id/"
-    label 'process_small'
+    label 'process_low'
     tag "$id in $db_id"
 
     input:
@@ -65,19 +65,37 @@ process FETCH_STRUCTURES_AF2DB {
 
     script:
     """
+
+    # ----------------------------------------------------
+    # Download the structures from the AlphaFold2 database
+    # ----------------------------------------------------
+
     function validate_url(){
       if [[ `wget -S --spider \$1  2>&1 | grep 'HTTP/1.1 200 OK'` ]]; then echo "true"; else echo "false";  fi
     }
 
     for id in \$(cat $ids_to_download); do url="https://alphafold.ebi.ac.uk/files/AF-\$id-F1-model_v4.pdb"; if `validate_url \$url == "true"`; then wget \$url; else echo "does not exist"; fi ; done
 
+
+    # ----------------------------------------------------
     # Rechange the protein names according to what appears in the template file
+    # ----------------------------------------------------
     getlinks_uniprot.py ${template} "make_links_tmp.sh" "pdb"
     [ -f ./make_links_tmp.sh ] && tr ', ' ' ' < make_links_tmp.sh > make_links.sh
     [ -f ./make_links.sh ] && bash ./make_links.sh
-    [ -f ./make_links.sh ] && cat ./make_links.sh
     rm ./AF-*
+
+    # ----------------------------------------------------
+    # Here cut them according to hits
+    # ----------------------------------------------------
+    cut_structures.py ${hits}
+    [ -f ./cut_structures_tmp.sh ] && tr ', ' ' ' < cut_structures_tmp.sh > cut_structures.sh
+    [ -f ./cut_structures.sh ] && bash ./cut_structures.sh
+    rm temp.pdb
     """
 }
+
+
+
 
 

@@ -21,6 +21,10 @@ workflow GET_UNIPROT_STRUCTURES {
 
         // 3. Download the structures
         FETCH_STRUCTURES_AF2DB(FILTER_HITS.out.filtered_hits)
+
+        // 4. Prep PDB 
+        // Cut structures according to the positions the hits (extract only the real matching chunk)
+        //PREP_STRUCTURES(FETCH_STRUCTURES_AF2DB.out.structures.map{ it -> [ it[0], it[1], it[4]]})
 }
 
 

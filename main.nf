@@ -43,7 +43,7 @@ workflow FETCH_STRUCTURES {
         STOREFASTACHUNKS(seqs)
         fastas = STOREFASTACHUNKS.out.fasta_chunk
     }else{
-        seqs = seqs.map { item -> [ item.baseName,item] }
+        fastas = seqs.map { item -> [ item.baseName,item] }
     }
 
     // Fetch the structures from the target database
