@@ -19,12 +19,12 @@ workflow GET_UNIPROT_STRUCTURES {
         // 2. Create the template file and obtain the best mmseqs hit
         FILTER_HITS(MMSEQS_SEARCH.out.hits.filter{ it[2].size()>0 }, min_id_filter, min_cov_filter)
 
-        // 3. Download the structures
+        // 3. Download the structures (and cut them according to the positions the hits)
         FETCH_STRUCTURES_AF2DB(FILTER_HITS.out.filtered_hits)
-
-        // 4. Prep PDB 
-        // Cut structures according to the positions the hits (extract only the real matching chunk)
-        //PREP_STRUCTURES(FETCH_STRUCTURES_AF2DB.out.structures.map{ it -> [ it[0], it[1], it[4]]})
+        
+   emit: 
+        structures = FETCH_STRUCTURES_AF2DB.out.fetched_structures
+       
 }
 
 

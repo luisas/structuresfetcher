@@ -1,4 +1,5 @@
 
+include { STRUCTURE_TO_3DI; MERGE_MAPPINGS; PREP_FS_SEQS } from '../modules/encoding.nf'
 
 
 workflow FOLDSEEK_CONVERT{
@@ -6,13 +7,11 @@ workflow FOLDSEEK_CONVERT{
         structures
 
     main:
-        echo "FOLDSEEK_CONVERT"
-        echo "structures: ${structures}"
-        echo "params.foldseek_convert: ${params.foldseek_convert}"
-        echo "params.outdir: ${params.outdir}"
-        echo "params.outdir_foldseek: ${params.outdir_foldseek}"
+        STRUCTURE_TO_3DI(structures)
+        MERGE_MAPPINGS(STRUCTURE_TO_3DI.out.mapping)
+        PREP_FS_SEQS(MERGE_MAPPINGS.out.mapping)
     
     emit: 
-        foldseek_db
+        foldseek_db = PREP_FS_SEQS.out.foldseek_db
 
 }
