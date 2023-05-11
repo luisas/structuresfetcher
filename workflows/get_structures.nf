@@ -1,6 +1,6 @@
 #!/bin/bash nextflow
 include { split_if_contains } from '../modules/functions.nf'
-include { MMSEQS_SEARCH;FILTER_HITS;FETCH_STRUCTURES_AF2DB; }  from '../modules/structures.nf'
+include { MMSEQS_SEARCH;FILTER_HITS;FETCH_STRUCTURES_AF2DB; ADD_HEADER}  from '../modules/structures.nf'
 
 
 workflow GET_UNIPROT_STRUCTURES {
@@ -21,9 +21,12 @@ workflow GET_UNIPROT_STRUCTURES {
 
         // 3. Download the structures (and cut them according to the positions the hits)
         FETCH_STRUCTURES_AF2DB(FILTER_HITS.out.filtered_hits)
+
+        // 4. Add the header to the structures
+        ADD_HEADER(FETCH_STRUCTURES_AF2DB.out.fetched_structures)
         
    emit: 
-        structures = FETCH_STRUCTURES_AF2DB.out.fetched_structures
+        structures = ADD_HEADER.out.pdb
        
 }
 

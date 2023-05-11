@@ -53,7 +53,7 @@ process FILTER_HITS {
 process FETCH_STRUCTURES_AF2DB {
     container 'luisas/python:bio3'
     storeDir "${params.outdir}/structures/fetched/${db_id}/$id/"
-    label 'process_low'
+    label 'process_medium'
     tag "$id in $db_id"
 
     input:
@@ -76,6 +76,7 @@ process FETCH_STRUCTURES_AF2DB {
 
     for id in \$(cat $ids_to_download); do url="https://alphafold.ebi.ac.uk/files/AF-\$id-F1-model_v4.pdb"; if `validate_url \$url == "true"`; then wget \$url; else echo "does not exist"; fi ; done
 
+    echo "LUISA" > LUISA.txt
 
     # ----------------------------------------------------
     # Rechange the protein names according to what appears in the template file
@@ -83,8 +84,9 @@ process FETCH_STRUCTURES_AF2DB {
     getlinks_uniprot.py ${template} "make_links_tmp.sh" "pdb"
     [ -f ./make_links_tmp.sh ] && tr ', ' ' ' < make_links_tmp.sh > make_links.sh
     [ -f ./make_links.sh ] && bash ./make_links.sh
-    rm ./AF-*
 
+    echo "LUISA" > LUISA2.txt
+    
     # ----------------------------------------------------
     # Here cut them according to hits
     # ----------------------------------------------------
@@ -99,3 +101,27 @@ process FETCH_STRUCTURES_AF2DB {
 
 
 
+process ADD_HEADER{
+  container 'luisas/structural_regression:17'
+  tag "${id}"
+  storeDir "${params.outdir}/structures/fetched_preprocessed/${db_id}/$id/"
+
+  label "process_medium"
+
+  input:
+  tuple val (id), val(db_id), path (structures)
+
+  output:
+  tuple val(id), val(db_id), path ("pdbs/*.pdb"), emit: pdb
+
+
+  script:
+  """
+  mkdir pdbs
+
+  for seq in ${structures}; do
+    seq_id=\$(basename \$seq .pdb)
+    t_coffee -other_pg extract_from_pdb -force -infile \$seq > pdbs/\$seq_id.pdb
+  done
+  """
+}

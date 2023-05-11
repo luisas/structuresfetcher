@@ -2,7 +2,7 @@ process STRUCTURE_TO_3DI{
     container 'luisas/foldseek_tcoffee:2'
     tag "$id"
     storeDir "${params.outdir}/foldseek/mapping/${db}/${id}/"
-    label 'process_small'
+    label 'process_low'
     
     input:
     tuple val(id), val(db), path (structures)
@@ -34,7 +34,7 @@ process MERGE_MAPPINGS {
 
   container 'luisas/python:bio3'
   storeDir "${params.outdir}/foldseek/mapping_merged/${db}/${id}/"
-  label 'process_small'
+  label 'process_low'
 
   input:
   tuple val(id), val(db), file(files)
@@ -52,7 +52,7 @@ process PREP_FS_SEQS{
     container 'luisas/foldseek_tcoffee:2'
     tag "$id"
     storeDir "${params.outdir}/foldseek/tcoffee_templates/ ${db}/${id}/"
-    label 'process_small'
+    label 'process_low'
     
     input:
     tuple val(id), val(db), path(mapping)

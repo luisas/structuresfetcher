@@ -19,8 +19,9 @@ if (params.target_db == "PDB") {
 
 // Prepare input channels
 seqs = Channel.fromPath( "$params.seqs" )
-target_db = Channel.fromPath( "${params.dbdir}/${params.target_db}",checkIfExists: true ).map { item -> [ item.baseName, item] }
-
+if(params.target_db != "AF2_PRED"){
+    target_db = Channel.fromPath( "${params.dbdir}/${params.target_db}",checkIfExists: true ).map { item -> [ item.baseName, item] }
+}
 
 seqs.view()
 log.info """\
@@ -53,11 +54,15 @@ workflow FETCH_STRUCTURES {
     }
     else if (params.target_db == "UniProtKB") {
         structures = GET_UNIPROT_STRUCTURES (fastas, target_db, params.min_id_filter, params.min_cov_filter)
+        structures.view()
         structures_db = structures.transpose().map{  it -> [it[0].split("\\.")[0], it[1], it[2] ] }.groupTuple(by: [0,1])
+        structures_db.view()
         SAVE_MERGED(structures_db, "structures")
     }
-
-    // Convert the structures to foldseek
+    else if (params.target_db == "AF2_PRED") {
+        structures = Channel.fromPath(params.structures_path)
+        structures = structures.map{  it -> [it.getParent().getParent().getBaseName(),"AF2_PRED", it] }.groupTuple(by: [0,1])
+    }
     if (params.foldseek_convert) {
         foldseek_db = FOLDSEEK_CONVERT(structures)
         foldseek_db = foldseek_db.map{  it -> [it[0].split("\\.")[0], it[1], it[2] ] }.groupTuple(by: [0,1])
