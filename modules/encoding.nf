@@ -1,14 +1,14 @@
 process STRUCTURE_TO_3DI{
     container 'luisas/foldseek_tcoffee:2'
     tag "$id"
-    storeDir "${params.outdir}/foldseek/mapping/${db}/${id}/"
+    storeDir "${params.outdir}/foldseek/mapping/${db}/id_${min_id_filter}_cov_${min_cov_filter}/$id/"
     label 'process_low'
     
     input:
-    tuple val(id), val(db), path (structures)
+    tuple val(id), val(db),val(min_id_filter), val(min_cov_filter), path (structures)
     
     output:
-    tuple val(id), val(db), path ("*3di.out"), emit: mapping
+    tuple val(id), val(db),val(min_id_filter), val(min_cov_filter), path ("*3di.out"), emit: mapping
     path ".command.trace", emit: metricFile
 
     
@@ -33,14 +33,14 @@ process STRUCTURE_TO_3DI{
 process MERGE_MAPPINGS {
 
   container 'luisas/python:bio3'
-  storeDir "${params.outdir}/foldseek/mapping_merged/${db}/${id}/"
+  storeDir "${params.outdir}/foldseek/mapping_merged/${db}/id_${min_id_filter}_cov_${min_cov_filter}/$id/"
   label 'process_low'
 
   input:
-  tuple val(id), val(db), file(files)
+  tuple val(id), val(db),val(min_id_filter), val(min_cov_filter), file(files)
 
   output:
-  tuple val(id), val(db), file("${id}.mapping"), emit: mapping
+  tuple val(id), val(db), val(min_id_filter), val(min_cov_filter),file("${id}.mapping"), emit: mapping
 
   script:
   """
@@ -51,14 +51,14 @@ process MERGE_MAPPINGS {
 process PREP_FS_SEQS{
     container 'luisas/foldseek_tcoffee:2'
     tag "$id"
-    storeDir "${params.outdir}/foldseek/tcoffee_templates/ ${db}/${id}/"
+    storeDir "${params.outdir}/foldseek/tcoffee_templates/${db}/id_${min_id_filter}_cov_${min_cov_filter}/$id/"
     label 'process_low'
     
     input:
-    tuple val(id), val(db), path(mapping)
+    tuple val(id), val(db),val(min_id_filter), val(min_cov_filter), path(mapping)
     
     output:
-    tuple val (id), val(db), path("${id}_fs"), emit: foldseek_db
+    tuple val (id), val(db),val(min_id_filter), val(min_cov_filter), path("${id}_fs"), emit: foldseek_db
     
     script:
     """

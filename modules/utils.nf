@@ -3,6 +3,7 @@
 process STOREFASTACHUNKS{
 
     storeDir "${params.outdir}/fasta_chunks/$id/$chunk/"
+    label "process_low"
 
     input:
     tuple val(id),val(chunk), file(fasta)
@@ -20,14 +21,15 @@ process STOREFASTACHUNKS{
 
 process SAVE_MERGED{
     
-    storeDir "${params.outdir}/DB/${folder_name}/${db}/"
+    storeDir "${params.outdir}/DB/${folder_name}/${db}/id_${min_id_filter}_cov_${min_cov_filter}/"
+    label "process_low"
 
     input:
-    tuple val(id), val(db), file(files)
+    tuple val(id), val(db),val(min_id_filter), val(min_cov_filter),file(files)
     val(folder_name)
 
     output:
-    tuple val(id), val(db), file("$id"), emit: all_files
+    tuple val(id), val(db),val(min_id_filter), val(min_cov_filter), file("$id"), emit: all_files
 
     script:
     """
@@ -38,14 +40,15 @@ process SAVE_MERGED{
 
 process SAVE_MERGED_DIR{
     
-    storeDir "${params.outdir}/DB/${folder_name}/${db}/"
+    storeDir "${params.outdir}/DB/${folder_name}/${db}/id_${min_id_filter}_cov_${min_cov_filter}/"
+    label "process_low"
 
     input:
-    tuple val(id), val(db), file(dirs)
+    tuple val(id), val(db),val(min_id_filter), val(min_cov_filter), file(dirs)
     val(folder_name)
 
     output:
-    tuple val(id), val(db), file("$id"), emit: all_files
+    tuple val(id), val(db) ,val(min_id_filter), val(min_cov_filter), file("$id"), emit: all_files
 
     script:
     """

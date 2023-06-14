@@ -39,7 +39,7 @@ def get_best_hits(hits):
     if(not df_noid_match.empty):
         df_noid_match['max_fam'] = df_noid_match.groupby([0])[2].transform('max')
         df_noid_match = df_noid_match[df_noid_match[2] == df_noid_match['max_fam']]
-        df_noid_match_filtered = df_noid_match.groupby(0).first().reset_index()
+        df_noid_match_filtered = df_noid_match.sort_values(by=[1]).groupby(0).first().reset_index()
         final_df = pd.concat([df_id_match,df_noid_match_filtered])
     else:
         final_df = df_id_match

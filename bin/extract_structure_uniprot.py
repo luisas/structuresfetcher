@@ -42,4 +42,3 @@ try:
 except:
     print("Error: ", structure)
     pass
-
