@@ -16,6 +16,7 @@ workflow GET_UNIPROT_STRUCTURES {
         // 1. Find sequence hits in the target database
         MMSEQS_SEARCH(seqs,target_db.collect())
 
+        MMSEQS_SEARCH.out.hits.view()
         // 2. Create the template file and obtain the best mmseqs hit
         FILTER_HITS(MMSEQS_SEARCH.out.hits.filter{ it[2].size()>0 }, min_id_filter, min_cov_filter)
 

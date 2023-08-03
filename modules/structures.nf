@@ -52,7 +52,7 @@ process FILTER_HITS {
 
 process FETCH_STRUCTURES_AF2DB {
     container 'luisas/python:bio3'
-    storeDir "${params.outdir}/structures/fetched/${db_id}/id_${min_id_filter}_cov_${min_cov_filter}/$id/"
+    storeDir "${params.outdir}/TEST/structures/fetched/${db_id}/id_${min_id_filter}_cov_${min_cov_filter}/$id/"
     label 'process_medium'
     tag "$id in $db_id"
 

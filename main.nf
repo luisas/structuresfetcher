@@ -32,6 +32,9 @@ log.info "min_cov_filter          : ${params.min_cov_filter}"
 log.info "foldseek_convert        : ${params.foldseek_convert}"
 
 
+seqs.view()
+print(params.seqs)
+
 workflow FETCH_STRUCTURES {
 
     // Prepare input channels
